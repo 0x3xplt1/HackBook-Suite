@@ -1,0 +1,512 @@
+if [[ "$TERMINAL_EMULATOR" == "JetBrains-JediTerm" ]]; then
+    return 0
+fi
+
+# Locale settings
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# Homebrew Environment (Apple Silicon M-series & Intel)
+if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# Path to your Oh My Zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set name of the theme to load
+ZSH_THEME="ubunly"
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+DISABLE_MAGIC_FUNCTIONS="true"
+
+# Which plugins would you like to load?
+plugins=(git zsh-autosuggestions fast-syntax-highlighting)
+source $ZSH/oh-my-zsh.sh
+
+
+
+# ==========================================
+# TOOL DIRECTORY SETUP (iCloud / Local)
+
+# ==========================================
+# Automatically switch paths based on whether you want tools synced or not
+if [ -d "$HOME/Documents/Tools" ]; then
+    export TOOLS_DIR="$HOME/Documents/Tools"
+else
+    export TOOLS_DIR="$HOME/Tools"
+fi
+
+# Global Wordlists Path
+export WORDLISTS="$TOOLS_DIR/wordlists"
+
+
+
+# ==========================================
+# ALIASES & TOOLS
+
+# ==========================================
+
+# Metasploit Native DB Wrapper
+msfconsole() {
+    local status=$(msfdb status 2>/dev/null)
+    if echo "$status" | grep -q "Database found, but is not running"; then
+        echo "[*] Waking up Metasploit Postgres database..."
+        msfdb start >/dev/null 2>&1
+    elif ! echo "$status" | grep -q "Database started"; then
+        # If it's not started and not just "not running", try to init it
+        echo "[*] Initializing Metasploit Postgres database..."
+        msfdb init >/dev/null 2>&1
+    fi
+    command msfconsole "$@"
+}
+
+# Python (force python3)
+alias python=python3
+
+alias grep='ggrep'
+alias nc='rlwrap netcat'
+alias sed='gsed'
+alias strings='gstrings'
+alias mysql='mariadb'
+alias speedtest='networkQuality'
+
+
+# ==========================================
+# HOMEBREW COMMAND-NOT-FOUND HANDLER
+
+# ==========================================
+# Mimics Debian's "command not found, but can be installed with..."
+HB_CNF_HANDLER="$(brew --repository)/Library/Homebrew/command-not-found/handler.sh"
+if [ -f "$HB_CNF_HANDLER" ]; then
+    source "$HB_CNF_HANDLER"
+fi
+
+
+# ==========================================
+# ZSH AUTO-CORRECTION
+
+# ==========================================
+# Instantly suggests fixes for misspelled commands
+setopt CORRECT
+
+alias dpat='$TOOLS_DIR/DPAT/dpat.py'
+alias xsstrike='python3.10 $TOOLS_DIR/XSStrike/xsstrike.py'
+alias dnsenum='perl $TOOLS_DIR/dnsenum/dnsenum.pl'
+alias odat='python3.10 $TOOLS_DIR/odat/odat.py'
+alias lfisuite='python2 $TOOLS_DIR/LFISuite/lfisuite.py'
+alias liffy='python3.10 $TOOLS_DIR/liffy/liffy.py'
+alias lfifreak='python2 $TOOLS_DIR/LFiFreak/lfi.py'
+alias finalrecon='python3.10 $TOOLS_DIR/FinalRecon/finalrecon.py'
+alias reconspider='python3.10 $TOOLS_DIR/ReconSpider/ReconSpider.py'
+alias eyewitness='python3.10 $TOOLS_DIR/EyeWitness/Python/EyeWitness.py'
+alias spiderfoot='python3.14 $TOOLS_DIR/spiderfoot/sf.py -l 127.0.0.1:5001'
+alias mars='java -jar $TOOLS_DIR/mars/Mars4_5.jar'
+alias sstimap='python3.10 $TOOLS_DIR/SSTImap/sstimap.py'
+alias tplmap='python2 $TOOLS_DIR/tplmap/tplmap.py'
+alias graphql-cop='python3.9 $TOOLS_DIR/graphql-cop/graphql-cop.py'
+alias joomscan='perl $TOOLS_DIR/joomscan/joomscan.pl'
+alias joomla-brute='python3.10 $TOOLS_DIR/joomla-bruteforce/joomla-brute.py'
+alias setoolkit='sudo $TOOLS_DIR/social-engineer-toolkit/setoolkit'
+alias responder='sudo python3.10 $TOOLS_DIR/Responder/Responder.py'
+alias o365spray='python3.10 $TOOLS_DIR/o365spray/o365spray.py'
+alias whatweb='ruby $TOOLS_DIR/WhatWeb/whatweb'
+alias ctfr='python3.10 $TOOLS_DIR/ctfr/ctfr.py'
+alias cupp='python3.10 $TOOLS_DIR/cupp/cupp.py'
+alias gitlab_userenum='python3 $TOOLS_DIR/GitLabUserEnum/gitlab_userenum.py'
+alias graphw00f='python3 $TOOLS_DIR/graphw00f/main.py'
+alias iis_shortname_scanner='(cd "$TOOLS_DIR/IIS-ShortName-Scanner/release" && java -jar iis_shortname_scanner.jar)'
+# XORSearch: Compile first with: gcc $TOOLS_DIR/XORSearch/XORSearch.c -o $TOOLS_DIR/XORSearch/xorsearch
+alias xorsearch='$TOOLS_DIR/XORSearch/xorsearch'
+
+# Subbrute requires running from its own folder to find resolvers.txt
+subbrute() {
+    local new_args=()
+    local prev_arg=""
+    
+    for arg in "$@"; do
+        # 1. If the file already exists locally, expand it
+        if [[ -e "$arg" && "$arg" != /* ]]; then
+            arg="$PWD/${arg#./}"
+            
+        # 2. If it doesn't exist yet, but it's an output file (follows the -o flag), expand it!
+        elif [[ "$prev_arg" == "-o" && "$arg" != /* ]]; then
+            arg="$PWD/${arg#./}"
+        fi
+        
+        prev_arg="$arg"
+        new_args+=("$arg")
+    done
+    (cd "$TOOLS_DIR/subbrute" && python3.10 subbrute.py "${new_args[@]}")
+}
+
+# Impacket Aliases (Makes both Standard syntax and .py syntax work identically)
+alias impacket-addcomputer="addcomputer.py"
+alias impacket-atexec="atexec.py"
+alias impacket-changepasswd="changepasswd.py"
+alias impacket-dcomexec="dcomexec.py"
+alias impacket-dpapi="dpapi.py"
+alias impacket-findDelegation="findDelegation.py"
+alias impacket-GetADComputers="GetADComputers.py"
+alias impacket-GetADUsers="GetADUsers.py"
+alias impacket-Get-GPPPassword="Get-GPPPassword.py"
+alias impacket-GetLAPSPassword="GetLAPSPassword.py"
+alias impacket-GetNPUsers="GetNPUsers.py"
+alias impacket-getST="getST.py"
+alias impacket-getTGT="getTGT.py"
+alias impacket-GetUserSPNs="GetUserSPNs.py"
+alias impacket-goldenPac="goldenPac.py"
+alias impacket-karmaSMB="karmaSMB.py"
+alias impacket-lookupsid="lookupsid.py"
+alias impacket-mimikatz="mimikatz.py"
+alias impacket-mssqlclient="mssqlclient.py"
+alias impacket-ntlmrelayx="ntlmrelayx.py"
+alias impacket-ping="ping.py"
+alias impacket-psexec="psexec.py"
+alias impacket-raiseChild="raiseChild.py"
+alias impacket-rbcd="rbcd.py"
+alias impacket-rdp_check="rdp_check.py"
+alias impacket-reg="reg.py"
+alias impacket-rpcdump="rpcdump.py"
+alias impacket-samrdump="samrdump.py"
+alias impacket-secretsdump="secretsdump.py"
+alias impacket-smbclient="smbclient.py"
+alias impacket-smbexec="smbexec.py"
+alias impacket-smbserver="smbserver.py"
+alias impacket-ticketConverter="ticketConverter.py"
+alias impacket-ticketer="ticketer.py"
+alias impacket-wmiexec="wmiexec.py"
+alias impacket-wmiquery="wmiquery.py"
+
+# Turn off the firewall (python server for machine file transferring)
+alias fw-off="sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off"
+alias fw-on="sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on"
+
+
+
+# ==========================================
+# VPN ROUTING
+
+# ==========================================
+# VPN HackTheBox
+alias VPN_HTB='sudo openvpn --config ~/Documents/School/HackTheBox/VPN_HTB/academy-regular.ovpn'
+alias VPN_SEASONAL='sudo openvpn --config ~/Documents/School/HackTheBox/VPN_HTB/competitive_0x3xplt1.ovpn'
+alias VPN_STARTING_POINT='sudo openvpn --config ~/Documents/School/HackTheBox/VPN_HTB/starting_point_0x3xplt1.ovpn'
+alias VPN_HTB_LABS='sudo openvpn --config ~/Documents/School/HackTheBox/VPN_HTB/lab_0x3xplt1.ovpn'
+alias VPN_HTB_ARENA='sudo openvpn --config ~/Documents/School/HackTheBox/VPN_HTB/release_arena_eu-release-1.ovpn'
+
+# VPN Route Fix
+alias VPN_ROUTE_FIX='sudo bash ~/Documents/School/HackTheBox/HTB\ Guides/macOS\ VPN\ Routing/VPN_ROUTE_FIX.sh'
+
+# VPN TryHackMe
+alias VPN_THM='sudo openvpn --config ~/Documents/School/TryHackMe/VPN_TryHackMe/eu-central-1-0x3xplt1-regular.ovpn'
+
+# VPN UTH
+alias VPN_UTH='sudo openvpn --config ~/Documents/School/Πανεπιστήμιο\ Θεσσαλίας/VPN_UTH/UTH\ Full\ (library).ovpn'
+
+
+
+# ==========================================
+# DOCKER LABS
+
+# ==========================================
+# Kali Linux Docker Container
+kali-linux-lab() {
+    local rm_flag="--rm"
+    local new_args=()
+    
+    # Parse for --persist flag
+    for arg in "$@"; do
+        if [[ "$arg" == "--persist" ]]; then
+            rm_flag=""
+        else
+            new_args+=("$arg")
+        fi
+    done
+
+    docker run --name kali-linux-lab --hostname kali $rm_flag -it \
+      --cap-add=NET_ADMIN \
+      --device /dev/net/tun \
+      -p 5901:5901 \
+      -p 5900:5900 \
+      -v ~/DockerLabs/docker-shared-data:/root/shared \
+      0x3xplt1/kali-linux-lab:latest "${new_args[@]}"
+}
+
+# Parrot OS Docker Container
+parrot-os-lab() {
+    local rm_flag="--rm"
+    local new_args=()
+    
+    # Parse for --persist flag
+    for arg in "$@"; do
+        if [[ "$arg" == "--persist" ]]; then
+            rm_flag=""
+        else
+            new_args+=("$arg")
+        fi
+    done
+
+    docker run --name parrot-os-lab --hostname parrot-lab $rm_flag -it \
+      --cap-add=NET_ADMIN \
+      --device /dev/net/tun \
+      -p 5902:5902 \
+      -p 5903:5903 \
+      -v ~/DockerLabs/docker-shared-data:/root/shared \
+      0x3xplt1/parrot-os-lab:latest "${new_args[@]}"
+}
+
+# REMnux Malware Analysis Docker Container
+remnux-lab() {
+    local rm_flag="--rm"
+    local new_args=()
+    
+    # Parse for --persist flag
+    for arg in "$@"; do
+        if [[ "$arg" == "--persist" ]]; then
+            rm_flag=""
+        else
+            new_args+=("$arg")
+        fi
+    done
+
+    docker run --name remnux-lab --hostname remnux $rm_flag -it \
+      --cap-add=NET_ADMIN \
+      --device /dev/net/tun \
+      -p 8080:8080 \
+      -v ~/DockerLabs/docker-shared-data:/home/remnux/shared \
+      remnux/remnux-distro bash "${new_args[@]}"
+}
+
+
+
+# ==========================================
+# ENVIRONMENT VARIABLES & PATHS
+
+# ==========================================
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+# pyenv initialization (Vital for switching between python versions)
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# Core macOS / Language Paths
+export PATH="/usr/local/sbin:$PATH"
+
+export PATH="$HOME/go/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
+export PATH="/usr/local/mysql/bin:$PATH"
+
+# Tool-Specific Paths
+if command -v brew >/dev/null 2>&1; then
+    BREW_PREFIX="$(brew --prefix)"
+    [ -d "$BREW_PREFIX/opt/john-jumbo/share/john" ] && export PATH="$BREW_PREFIX/opt/john-jumbo/share/john:$PATH"
+fi
+export PATH="$TOOLS_DIR/hashcat-utils/src:$PATH"
+export PATH="$TOOLS_DIR/odat:$PATH"
+
+# Python Legacy Fallback (KEEP THIS! It saves you if a tool is manually installed via 'pip install --user')
+export PATH="$HOME/Library/Python/3.10/bin:$PATH"
+
+# Oracle Instant Client and SLQPLUS
+export PATH=~/bin/Oracle:$PATH
+export DYLD_LIBRARY_PATH=~/bin/Oracle
+
+# Brew Paths (Dynamic for Apple Silicon & Intel)
+if [ -n "$BREW_PREFIX" ]; then
+    export PATH="$BREW_PREFIX/sbin:$PATH"
+    [ -d "$BREW_PREFIX/opt/curl/bin" ] && export PATH="$BREW_PREFIX/opt/curl/bin:$PATH"
+    [ -d "$BREW_PREFIX/opt/binutils/bin" ] && export PATH="$BREW_PREFIX/opt/binutils/bin:$PATH"
+    [ -d "$BREW_PREFIX/opt/binutils/lib" ] && export LDFLAGS="-L$BREW_PREFIX/opt/binutils/lib"
+    [ -d "$BREW_PREFIX/opt/binutils/include" ] && export CPPFLAGS="-I$BREW_PREFIX/opt/binutils/include"
+fi
+
+# pipx PATHs (Core Pentesting Tool engine)
+export PIPX_HOME="$HOME/.local/pipx"
+export PIPX_BIN_DIR="$HOME/bin"
+export PIPX_DEFAULT_PYTHON="$HOME/.pyenv/versions/3.10.16/bin/python3"
+
+# Antigravity & SDKs
+export PATH="$HOME/.local/bin:$PATH"
+alias agy-resume="if [ -f agy_resume.txt ]; then eval \"\$(cat agy_resume.txt)\"; elif [ -f agy_resume ]; then eval \"\$(cat agy_resume)\"; else echo \"[-] agy_resume file not found!\"; fi"
+alias agy_resume="agy-resume"
+
+export PATH=/Applications/Flutter_SDK/flutter/bin:$PATH
+export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"
+export XML_CATALOG_FILES="/usr/local/etc/xml/catalog"
+
+
+
+# ==========================================
+# FUNCTIONS
+
+# ==========================================
+# macOS Quarantine Management
+unquarantine() {
+    if [ -z "$1" ]; then
+        echo "Usage: unquarantine <App_Name> (e.g., unquarantine Chromium)"
+        return 1
+    fi
+
+    local app_path="$1"
+    
+    # Auto-complete the path if only the name is provided
+    if [[ ! "$app_path" == /* ]]; then
+        app_path="/Applications/$app_path"
+    fi
+    if [[ ! "$app_path" == *.app* ]]; then
+        app_path="${app_path}.app"
+    fi
+
+    if [ ! -d "$app_path" ]; then
+        echo "[-] App not found: $app_path"
+        return 1
+    fi
+
+    sudo xattr -r -d com.apple.quarantine "$app_path" 2>/dev/null
+    echo "[+] Quarantine removed from $app_path"
+}
+
+scan-quarantine() {
+    echo "[*] Scanning /Applications for quarantined apps..."
+    for app in /Applications/*.app; do
+        if xattr "$app" 2>/dev/null | grep -q "com.apple.quarantine"; then
+            echo "[!] Flagged: $app"
+        fi
+    done
+}
+
+# System Update (Debian's apt update && apt upgrade equivalent)
+sysupdate() {
+    echo "Hit:1 https://brew.sh/packages macos-rolling InRelease"
+    echo "Hit:2 https://pypi.org/simple pipx-tools InRelease"
+    echo "Hit:3 https://github.com/ repos InRelease"
+    sleep 1
+    echo "Reading package lists... Done"
+    echo "Building dependency tree... Done"
+    echo "Reading state information... Done"
+    sleep 1
+    echo "Calculating upgrade... Done\n"
+
+    brew update && brew upgrade && brew cleanup
+    
+    echo "\n"
+
+    pipx upgrade-all
+
+    echo "\n"
+
+    for d in "$TOOLS_DIR"/*/; do
+        if [ -d "$d/.git" ]; then
+            # Print which folder is being checked so we know if iCloud hangs
+            printf "Chk: %-30s\r" "$(basename "$d")"
+            
+            # Fetch silently with a 60-second timeout to prevent infinite iCloud hangs
+            export GIT_TERMINAL_PROMPT=0
+            if ! perl -e 'alarm 60; exec @ARGV' git -C "$d" fetch -q 2>/dev/null; then
+                printf "%-35s\r" " "
+                echo "E: Skipped $(basename "$d") (Timeout/iCloud stall)"
+                continue
+            fi
+            
+            # Check how many commits we are behind the remote
+            BEHIND=$(git -C "$d" rev-list HEAD..@{u} --count 2>/dev/null || echo "0")
+            
+            # Clear the checking line
+            printf "%-35s\r" " "
+            
+            if [ "$BEHIND" -eq 0 ]; then
+                echo "Hit: $(basename "$d") (Up to date)"
+            else
+                if ! git -C "$d" diff --quiet || ! git -C "$d" diff --cached --quiet; then
+                    echo "W: Updates available for $(basename "$d") but skipped (Local changes detected)"
+                else
+                    echo "Get: $(basename "$d")..."
+                    if perl -e 'alarm 120; exec @ARGV' git -C "$d" pull -q; then
+                        echo "I: $(basename "$d") updated successfully"
+                    else
+                        echo "E: Failed to update $(basename "$d") (Timeout)"
+                    fi
+                fi
+            fi
+        fi
+    done
+    echo "\nDone."
+}
+
+# URL ENCODING with Python
+urlencode() {
+    python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$1"
+}
+
+# Custom function to spoof the username in the prompt (if needed) 
+#spoof() {
+#  export PROMPT="${PROMPT/\%n/$1}"
+#}
+
+# xfreerdp automated for terminal
+# Auto starts XQuartz, sets DISPLAY, and bypasses certs
+xfreerdp() {
+      if [ "$#" -eq 0 ]; then
+        command xfreerdp
+        return
+      fi
+
+      if pgrep -f "XQuartz" > /dev/null; then
+        : # XQuartz is already running
+      else
+        brew reinstall --cask --quiet xquartz > /dev/null
+        open -a XQuartz
+        sleep 1
+      fi
+
+      export DISPLAY=:0
+
+      command xfreerdp \
+        /drive:"$USER",$PWD \
+        /cert:ignore \
+        /dynamic-resolution \
+        +clipboard \
+        +auto-reconnect \
+        "$@"
+}
+
+
+
+# ==========================================
+# PROMPT FIXES
+
+# ==========================================
+# Unset right prompt to remove exit code errors like "141 ⨯" on up-arrow
+unset RPROMPT
+unset RPS1
+cyberchef() {
+    LOCAL_FILE=$(ls "$HOME/Documents/Tools/CyberChef"/CyberChef_v*.html 2>/dev/null | head -n 1)
+    if [ -n "$LOCAL_FILE" ]; then
+        LOCAL_VER=$(basename "$LOCAL_FILE" | sed -n 's/CyberChef_\(v.*\)\.html/\1/p')
+    else
+        LOCAL_VER="None"
+    fi
+    REMOTE_VER=$(curl -s --max-time 2 https://api.github.com/repos/gchq/CyberChef/releases/latest | grep '"tag_name":' | awk -F'"' '{print $4}')
+    if [ -n "$REMOTE_VER" ] && [ "$LOCAL_VER" != "$REMOTE_VER" ]; then
+        echo "[!] New CyberChef version found: $REMOTE_VER (Local: $LOCAL_VER)"
+        printf "Update now? [y/N]: "
+        read response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            echo "[*] Downloading $REMOTE_VER..."
+            LATEST_URL=$(curl -s https://api.github.com/repos/gchq/CyberChef/releases/latest | grep "browser_download_url.*\.zip" | awk -F'"' '{print $4}')
+            if [ -n "$LATEST_URL" ]; then
+                mkdir -p "$HOME/Documents/Tools/CyberChef"
+                rm -f "$HOME/Documents/Tools/CyberChef"/CyberChef_v*.html
+                curl -sL "$LATEST_URL" -o /tmp/CyberChef.zip
+                unzip -o -q /tmp/CyberChef.zip -d "$HOME/Documents/Tools/CyberChef/"
+                rm /tmp/CyberChef.zip
+                echo "[+] Update complete!"
+            fi
+        fi
+    fi
+    open "$HOME/Documents/Tools/CyberChef"/CyberChef_v*.html 2>/dev/null || echo "[-] CyberChef file not found!"
+}
