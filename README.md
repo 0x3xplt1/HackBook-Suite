@@ -78,8 +78,17 @@ The famous OSINT web reconnaissance framework (same as Kali). The automated GitH
 
 ```bash
 recon-ng
-recon-cli -h
 ```
+
+**Quick Start Guide:**
+Modern `recon-ng` ships empty by default. You must install modules from the marketplace:
+1. `workspaces create <target>` — Create a new project workspace.
+2. `marketplace search` — List all available modules.
+3. `marketplace install hackertarget` — Install a specific module (no API key needed).
+4. `modules load hackertarget` — Load the module for use.
+5. `options set SOURCE example.com` — Define your target domain.
+6. `run` — Execute the scan.
+7. `show hosts` — View the gathered results.
 
 ---
 
