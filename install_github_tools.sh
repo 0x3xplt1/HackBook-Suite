@@ -64,6 +64,7 @@ declare -A REPOS=(
     ["graphw00f"]="https://github.com/dolevf/graphw00f.git"
     ["smtp-user-enum"]="https://github.com/pentestmonkey/smtp-user-enum.git"
     ["EmailHarvester"]="https://github.com/maldevel/EmailHarvester.git"
+    ["recon-ng"]="https://github.com/lanmaster53/recon-ng.git"
 )
 
 for folder in "${!REPOS[@]}"; do
@@ -107,6 +108,18 @@ if [ -f "$INSTALL_DIR/EmailHarvester/EmailHarvester.py" ]; then
     chmod +x EmailHarvester.py
     mkdir -p "$HOME/bin"
     ln -sf "$INSTALL_DIR/EmailHarvester/EmailHarvester.py" "$HOME/bin/emailharvester"
+    cd - > /dev/null
+fi
+
+if [ -f "$INSTALL_DIR/recon-ng/recon-ng" ]; then
+    echo "Configuring recon-ng..."
+    cd "$INSTALL_DIR/recon-ng"
+    python3 -m pip install -r REQUIREMENTS 2>/dev/null || true
+    chmod +x recon-ng recon-cli recon-web
+    mkdir -p "$HOME/bin"
+    ln -sf "$INSTALL_DIR/recon-ng/recon-ng" "$HOME/bin/recon-ng"
+    ln -sf "$INSTALL_DIR/recon-ng/recon-cli" "$HOME/bin/recon-cli"
+    ln -sf "$INSTALL_DIR/recon-ng/recon-web" "$HOME/bin/recon-web"
     cd - > /dev/null
 fi
 

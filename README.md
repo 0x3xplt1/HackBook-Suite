@@ -72,6 +72,17 @@ emailharvester -d example.com -e google
 
 ---
 
+### recon-ng
+
+The famous OSINT web reconnaissance framework (same as Kali). The automated GitHub installer clones it, installs its Python dependencies, and maps the binaries to your path.
+
+```bash
+recon-ng
+recon-cli -h
+```
+
+---
+
 ### xorsearch
 
 Didier Stevens' XOR/ROT string scanner — standard in Kali and REMnux for malware analysis. Searches inside binary files for encoded strings like URLs, IPs, or shellcode. Not on Homebrew, so build it from source (takes about 5 seconds):
