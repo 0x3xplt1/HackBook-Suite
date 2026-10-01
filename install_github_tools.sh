@@ -63,6 +63,7 @@ declare -A REPOS=(
     ["BruteXSS"]="https://github.com/rajeshmajumdar/BruteXSS.git"
     ["graphw00f"]="https://github.com/dolevf/graphw00f.git"
     ["smtp-user-enum"]="https://github.com/pentestmonkey/smtp-user-enum.git"
+    ["EmailHarvester"]="https://github.com/maldevel/EmailHarvester.git"
 )
 
 for folder in "${!REPOS[@]}"; do
@@ -97,6 +98,16 @@ if [ -f "$INSTALL_DIR/smtp-user-enum/smtp-user-enum.pl" ]; then
     chmod +x "$INSTALL_DIR/smtp-user-enum/smtp-user-enum.pl"
     mkdir -p "$HOME/bin"
     ln -sf "$INSTALL_DIR/smtp-user-enum/smtp-user-enum.pl" "$HOME/bin/smtp-user-enum"
+fi
+
+if [ -f "$INSTALL_DIR/EmailHarvester/EmailHarvester.py" ]; then
+    echo "Configuring EmailHarvester..."
+    cd "$INSTALL_DIR/EmailHarvester"
+    python3 -m pip install -r requirements.txt 2>/dev/null || true
+    chmod +x EmailHarvester.py
+    mkdir -p "$HOME/bin"
+    ln -sf "$INSTALL_DIR/EmailHarvester/EmailHarvester.py" "$HOME/bin/emailharvester"
+    cd - > /dev/null
 fi
 
 

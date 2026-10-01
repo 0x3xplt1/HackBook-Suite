@@ -62,6 +62,16 @@ whatport 31337
 
 ---
 
+### emailharvester
+
+The dedicated Kali Linux package for finding domain emails in search engines. Handled automatically by the GitHub tools script (cloned, requirements installed, and symlinked).
+
+```bash
+emailharvester -d example.com -e google
+```
+
+---
+
 ### xorsearch
 
 Didier Stevens' XOR/ROT string scanner — standard in Kali and REMnux for malware analysis. Searches inside binary files for encoded strings like URLs, IPs, or shellcode. Not on Homebrew, so build it from source (takes about 5 seconds):
