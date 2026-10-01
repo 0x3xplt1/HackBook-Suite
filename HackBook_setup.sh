@@ -269,6 +269,11 @@ for tool in "${PIPX_TOOLS[@]}"; do
     echo "[+] pipx install $tool"
     rm -f ~/bin/$tool 2>/dev/null || true
     pipx install --force "$tool" || echo "[-] Failed: $tool"
+    
+    # Fix for shodan missing pkg_resources in modern setuptools (>70)
+    if [ "$tool" = "shodan" ]; then
+        pipx inject --force shodan "setuptools<70.0.0" >/dev/null 2>&1 || true
+    fi
 done
 
 # dnsrecon requires Python >=3.12 (its pyproject.toml rejects 3.10)
