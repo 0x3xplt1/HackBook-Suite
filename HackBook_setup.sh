@@ -262,6 +262,7 @@ PIPX_TOOLS=(
     fierce
     oletools
     xortool
+    h8mail
 )
 
 for tool in "${PIPX_TOOLS[@]}"; do
