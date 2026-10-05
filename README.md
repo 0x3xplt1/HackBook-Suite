@@ -19,7 +19,7 @@ chmod +x HackBook_setup.sh
 
 - Homebrew + GNU core utilities (replaces BSD tools with Linux equivalents)
 - Python version management via `pyenv` (3.10, 3.12, 3.13, 3.14)
-- Security tools via `pipx`: `impacket`, `pypykatz`, `oletools`, `h8mail`, `xortool`, `wpscan`, and more
+- Security tools via `pipx`: `impacket`, `pypykatz`, `oletools`, `h8mail`, `uploadserver`, `xortool`, `wpscan`, and more
 - Go tools: `ffuf`, `gobuster`, `aquatone`, `subfinder`, etc.
 - `nano` with syntax highlighting (includes MIPS Assembly)
 - Mars4_5 MIPS simulator
@@ -237,3 +237,7 @@ macOS-Cybersecurity-Toolkit/
 - `Stats.plist` → `~/Library/Preferences/eu.exelban.Stats.plist`
 - `mips.nanorc` → `~/.nano/mips.nanorc`
 - `zshrc_template` → `~/.zshrc` (original backed up to `~/.zshrc.backup_setup`)
+
+## Privacy & Dark Web Tools
+- **ProtonVPN:** A highly secure, strict no-logs VPN (installed via Cask).
+- **Tor & Tor Browser:** Background tor service for CLI proxying, and the official Tor Browser for `.onion` access.

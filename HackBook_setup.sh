@@ -179,7 +179,7 @@ BREW_TOOLS=(
     crunch massdns nikto theharvester sqlcmd freerdp inetutils
     amass exiftool exploitdb dnsmap samba swaks sevenzip iproute2mac
     go rust ruby php maven mariadb redis poetry gh ripgrep htop vnstat
-    watch rlwrap gnu-sed proxychains-ng binutils
+    watch rlwrap gnu-sed proxychains-ng binutils tor
 )
 
 for tool in "${BREW_TOOLS[@]}"; do
@@ -263,6 +263,7 @@ PIPX_TOOLS=(
     oletools
     xortool
     h8mail
+    uploadserver
 )
 
 for tool in "${PIPX_TOOLS[@]}"; do
@@ -342,7 +343,7 @@ CASKS=(
     xquartz bloodhound metasploit
     nessus macfuse veracrypt chromium temurin@17 android-platform-tools dotnet-sdk
     sage vlc rar claude-code copilot-cli
-    stats xbar tailscale-app
+    stats xbar tailscale-app tor-browser protonvpn
 )
 
 for cask in "${CASKS[@]}"; do
