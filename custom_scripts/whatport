@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+
+import sys
+import subprocess
+import os
+
+# ANSI Colors for terminal output
+C = '\033[96m' # Cyan
+G = '\033[92m' # Green
+Y = '\033[93m' # Yellow
+R = '\033[91m' # Red
+B = '\033[1m'  # Bold
+E = '\033[0m'  # End
+
+# User's Custom HackTheBox Dictionary (Imported from HTB Guides)
+HACKER_DATA = [
+    {"Port": "20", "Service": "FTP Data", "Description": "File Transfer Protocol data connection.", "Notes": "Associated with port 21."},
+    {"Port": "21", "Service": "FTP Control (Unencrypted)", "Description": "File Transfer Protocol command connection.", "Notes": "Check for anonymous login. Cleartext auth. Packet sniffing for credentials."},
+    {"Port": "22", "Service": "SSH / SFTP (Encrypted)", "Description": "Secure Shell / Secure FTP.", "Notes": "Often moved to 2222 or others to evade scans. Look for weak credentials or exposed private keys (id_rsa)."},
+    {"Port": "23", "Service": "Telnet (Unencrypted)", "Description": "Unencrypted text communications.", "Notes": "Cleartext credentials. Highly vulnerable to sniffing (Wireshark/tcpdump)."},
+    {"Port": "25", "Service": "SMTP (Unencrypted)", "Description": "Simple Mail Transfer Protocol.", "Notes": "Look for open relays, user enumeration (VRFY, EXPN)."},
+    {"Port": "53", "Service": "DNS", "Description": "Domain Name System.", "Notes": "UDP for queries, TCP for zone transfers (AXFR). Zone transfers can reveal internal network topology."},
+    {"Port": "69", "Service": "TFTP (Unencrypted)", "Description": "Trivial File Transfer Protocol.", "Notes": "UDP. No authentication. Can read/write if configured poorly. Great for exfiltration or uploading reverse shells."},
+    {"Port": "80", "Service": "HTTP (Unencrypted)", "Description": "Hypertext Transfer Protocol.", "Notes": "Directory brute forcing (Gobuster/ffuf) is key. Check for hidden admin panels."},
+    {"Port": "88", "Service": "Kerberos", "Description": "Network authentication protocol.", "Notes": "Used in Active Directory. Prime target for AS-REP Roasting and Kerberoasting to crack TGT/TGS tickets offline."},
+    {"Port": "110", "Service": "POP3 (Unencrypted)", "Description": "Post Office Protocol v3.", "Notes": "Email retrieval, cleartext auth. Sniff for credentials."},
+    {"Port": "111", "Service": "RPCbind", "Description": "Maps RPC program numbers to network port numbers.", "Notes": "Enumerate using rpcinfo to find hidden services (like NFS)."},
+    {"Port": "135", "Service": "MSRPC", "Description": "Microsoft RPC Endpoint Mapper.", "Notes": "Used for finding available RPC services. Enumerate endpoints to find target services."},
+    {"Port": "137, 138", "Service": "NetBIOS", "Description": "NetBIOS Name/Datagram Service.", "Notes": "UDP. Used for name resolution. Vulnerable to LLMNR/NBT-NS Poisoning (Responder)."},
+    {"Port": "139", "Service": "NetBIOS Session", "Description": "NetBIOS Session Service.", "Notes": "Often paired with 445 for SMB. Legacy Windows file sharing."},
+    {"Port": "143", "Service": "IMAP (Unencrypted)", "Description": "Internet Message Access Protocol.", "Notes": "Email retrieval. Look for cleartext logins and sensitive information in emails."},
+    {"Port": "161, 162", "Service": "SNMP", "Description": "Simple Network Management Protocol.", "Notes": "UDP. Check for default community strings like 'public' or 'private'. Huge source of internal network info."},
+    {"Port": "389", "Service": "LDAP (Unencrypted)", "Description": "Lightweight Directory Access Protocol.", "Notes": "Check for null binds/anonymous access to dump Active Directory users and groups."},
+    {"Port": "443", "Service": "HTTPS (Encrypted)", "Description": "HTTP Secure (TLS/SSL).", "Notes": "Certificate details (Subject Alternative Names) can leak hidden subdomains or internal hostnames."},
+    {"Port": "445", "Service": "SMB", "Description": "Server Message Block.", "Notes": "Check for null sessions, anonymous shares, EternalBlue (MS17-010), SMBGhost. Crucial for AD enumeration."},
+    {"Port": "464", "Service": "kpasswd", "Description": "Kerberos Password Change.", "Notes": "Used for password resets in AD environments."},
+    {"Port": "465", "Service": "SMTPS (Encrypted)", "Description": "SMTP over TLS/SSL.", "Notes": "Encrypted email routing."},
+    {"Port": "512, 513, 514", "Service": "rexec, rlogin, rsh (Unencrypted)", "Description": "Remote execution/login protocols.", "Notes": "Extremely insecure, no encryption. Look for .rhosts misconfigurations allowing passwordless login."},
+    {"Port": "514", "Service": "Syslog", "Description": "System logging.", "Notes": "Often UDP. Logs can leak sensitive info or credentials if sniffed."},
+    {"Port": "587", "Service": "SMTP Submission (Encrypted)", "Description": "SMTP message submission.", "Notes": "Usually requires authentication and uses STARTTLS."},
+    {"Port": "593", "Service": "RPC over HTTP", "Description": "RPC endpoint over HTTP.", "Notes": "Often used for Exchange/DCOM."},
+    {"Port": "636", "Service": "LDAPS (Encrypted)", "Description": "LDAP Secure (TLS/SSL).", "Notes": "Encrypted LDAP. Still vulnerable to the same misconfigurations if auth is weak."},
+    {"Port": "873", "Service": "Rsync (Unencrypted)", "Description": "File synchronization protocol.", "Notes": "Look for unauthenticated modules/shares to read/write files. Excellent for uploading SSH keys or shells."},
+    {"Port": "990", "Service": "FTPS (Encrypted)", "Description": "FTP over TLS/SSL.", "Notes": "Uses TLS to encrypt the FTP control and data channels."},
+    {"Port": "993", "Service": "IMAPS (Encrypted)", "Description": "IMAP over TLS/SSL.", "Notes": "Secure email retrieval."},
+    {"Port": "995", "Service": "POP3S (Encrypted)", "Description": "POP3 over TLS/SSL.", "Notes": "Secure email retrieval."},
+    {"Port": "1080", "Service": "SOCKS", "Description": "SOCKS Proxy.", "Notes": "Useful for pivoting into internal networks (Chisel/Proxychains)."},
+    {"Port": "1433", "Service": "MSSQL", "Description": "Microsoft SQL Server.", "Notes": "Brute-force 'sa' account. If compromised, enable and use xp_cmdshell for Remote Code Execution (RCE)."},
+    {"Port": "1521", "Service": "Oracle", "Description": "Oracle Database.", "Notes": "Enumerate SIDs using ODAT, check for default credentials (scott/tiger)."},
+    {"Port": "2049", "Service": "NFS (Unencrypted)", "Description": "Network File System.", "Notes": "Check for 'no_root_squash' misconfigurations. Allows creating a SUID bash binary to escalate to root."},
+    {"Port": "2181", "Service": "Zookeeper", "Description": "Apache ZooKeeper.", "Notes": "Often unauthenticated info disclosure. Use 'envi' or 'dump' commands."},
+    {"Port": "3128", "Service": "Squid", "Description": "Squid HTTP Proxy.", "Notes": "Can be used for proxy pivoting or to access internal restricted web apps."},
+    {"Port": "3268", "Service": "Global Catalog", "Description": "AD Global Catalog.", "Notes": "LDAP for searching across the entire AD forest."},
+    {"Port": "3306", "Service": "MySQL", "Description": "MySQL / MariaDB.", "Notes": "Check for default root credentials, anonymous access, or writing files via SELECT INTO OUTFILE."},
+    {"Port": "3389", "Service": "RDP (Encrypted)", "Description": "Remote Desktop Protocol.", "Notes": "BlueKeep (CVE-2019-0708). Can be brute-forced. Check if NLA is disabled."},
+    {"Port": "5432", "Service": "PostgreSQL", "Description": "PostgreSQL Database.", "Notes": "Look for weak credentials. RCE possible via 'COPY FROM PROGRAM' in newer versions."},
+    {"Port": "5900", "Service": "VNC", "Description": "Virtual Network Computing.", "Notes": "Often unauthenticated or weak passwords. Alt: 5901, 5902... Sniffing can reveal keystrokes."},
+    {"Port": "5985", "Service": "WinRM (Unencrypted)", "Description": "Windows Remote Management over HTTP.", "Notes": "Used by Evil-WinRM for a shell using credentials or Pass-the-Hash."},
+    {"Port": "5986", "Service": "WinRM (Encrypted)", "Description": "Windows Remote Management over HTTPS.", "Notes": "Encrypted WinRM."},
+    {"Port": "6379", "Service": "Redis (Unencrypted)", "Description": "Redis Key-Value Store.", "Notes": "Often unauthenticated. Can lead to RCE by writing SSH keys to /root/.ssh/ or cron jobs."},
+    {"Port": "8000, 8080", "Service": "HTTP Alt (Unencrypted)", "Description": "Alternate HTTP ports.", "Notes": "Commonly used for development servers, Apache Tomcat, Jenkins. Look for default manager credentials."},
+    {"Port": "8443", "Service": "HTTPS Alt (Encrypted)", "Description": "Alternate HTTPS ports.", "Notes": "Often used for admin panels (Tomcat, Plesk)."},
+    {"Port": "9200", "Service": "Elasticsearch", "Description": "Elasticsearch REST API.", "Notes": "Often exposed without authentication. Great for data exfiltration and info gathering."},
+    {"Port": "11211", "Service": "Memcached (Unencrypted)", "Description": "Memcached.", "Notes": "Often unauthenticated. Extract sensitive cached data or session tokens."},
+    {"Port": "27017", "Service": "MongoDB (Unencrypted)", "Description": "MongoDB NoSQL Database.", "Notes": "Often deployed without authentication. Easy access to all databases."}
+]
+
+def fallback_search(query):
+    found = False
+    is_num = query.isdigit()
+    query_lower = query.lower()
+    
+    # 1. Check Nmap services (Homebrew path)
+    nmap_path = "/opt/homebrew/share/nmap/nmap-services"
+    if os.path.exists(nmap_path):
+        try:
+            if is_num:
+                cmd = f"grep -E -w '^{query}/(tcp|udp)' {nmap_path}"
+            else:
+                cmd = f"grep -i -E '^{query}\\s+' {nmap_path}"
+                
+            result = subprocess.check_output(cmd, shell=True, text=True).strip()
+            if result:
+                print(f"\n{C}[+] Nmap Database Match:{E}")
+                # Limit to first 10 matches to avoid flooding
+                lines = result.split('\n')[:10]
+                for line in lines:
+                    if line.startswith('#'): continue
+                    parts = line.split()
+                    if len(parts) >= 3:
+                        print(f"    {B}Service:{E} {parts[0].ljust(15)} {B}Proto:{E} {parts[1].ljust(10)} {B}Info:{E} {' '.join(parts[3:])}")
+                if len(result.split('\n')) > 10:
+                    print(f"    {Y}... (showing first 10 results){E}")
+                found = True
+        except subprocess.CalledProcessError:
+            pass
+
+    # 2. Check /etc/services
+    if not found:
+        try:
+            if is_num:
+                cmd = f"awk '$2 ~ /^{query}\\//' /etc/services"
+            else:
+                cmd = f"grep -i -E '^{query}\\s+' /etc/services"
+                
+            result = subprocess.check_output(cmd, shell=True, text=True).strip()
+            if result:
+                print(f"\n{C}[+] OS /etc/services Match:{E}")
+                lines = result.split('\n')[:10]
+                for line in lines:
+                    if not line.startswith('#'):
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            desc = ' '.join(parts[2:]) if len(parts) > 2 else ""
+                            print(f"    {B}Service:{E} {parts[0].ljust(15)} {B}Port:{E} {parts[1].ljust(10)} {desc}")
+                if len(result.split('\n')) > 10:
+                    print(f"    {Y}... (showing first 10 results){E}")
+                found = True
+        except subprocess.CalledProcessError:
+            pass
+            
+    if not found:
+        print(f"\n{R}[-] '{query}' not found in any database.{E}")
+
+def main():
+    if len(sys.argv) != 2:
+        print(f"Usage: whatport <port_number_or_service>")
+        print(f"Example 1: whatport 445")
+        print(f"Example 2: whatport snmp")
+        sys.exit(1)
+        
+    query = sys.argv[1].strip()
+    is_num = query.isdigit()
+    matched_entries = []
+    
+    # Search the hacker dictionary first
+    for entry in HACKER_DATA:
+        if is_num:
+            ports_list = [p.strip() for p in entry["Port"].split(',')]
+            if query in ports_list:
+                matched_entries.append(entry)
+        else:
+            search_text = f"{entry['Service']} {entry['Description']}".lower()
+            if query.lower() in search_text:
+                matched_entries.append(entry)
+                
+    if matched_entries:
+        print(f"{B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{E}")
+        print(f"{G} 🔍 SEARCH: {query.upper()} {E}")
+        print(f"{B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{E}")
+        for i, matched_entry in enumerate(matched_entries):
+            print(f"{C}🔌 Port(s):{E}     {B}{matched_entry['Port']}{E}")
+            print(f"{C}[+] Service:{E}     {B}{matched_entry['Service']}{E}")
+            print(f"{C}[+] Description:{E} {matched_entry['Description']}")
+            print(f"{Y}[!] Notes:{E}       {matched_entry['Notes']}")
+            if i < len(matched_entries) - 1:
+                print(f"{B}──────────────────────────────────────────────────{E}")
+        print(f"{B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{E}")
+    else:
+        fallback_search(query)
+
+if __name__ == "__main__":
+    main()

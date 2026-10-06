@@ -499,13 +499,24 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 if [ -d "$SCRIPT_DIR/custom_scripts" ]; then
     echo "Installing custom toolkit scripts..."
+    
+    # Create the permanent custom scripts directory in Tools
+    PERMANENT_SCRIPT_DIR="$TOOLS_DIR/Scripts"
+    mkdir -p "$PERMANENT_SCRIPT_DIR"
     mkdir -p "$HOME/bin"
+    
     for script in "$SCRIPT_DIR/custom_scripts"/*; do
         if [ -f "$script" ]; then
-            chmod +x "$script"
             script_name=$(basename "$script")
-            ln -sf "$script" "$HOME/bin/$script_name"
-            echo "  [+] Linked $script_name to ~/bin/"
+            
+            # Copy it to the permanent Tools location
+            cp "$script" "$PERMANENT_SCRIPT_DIR/"
+            chmod +x "$PERMANENT_SCRIPT_DIR/$script_name"
+            
+            # Link it to ~/bin so it is globally available in PATH
+            ln -sf "$PERMANENT_SCRIPT_DIR/$script_name" "$HOME/bin/$script_name"
+            
+            echo "  [+] Installed & Linked $script_name to ~/bin/"
         fi
     done
 else
