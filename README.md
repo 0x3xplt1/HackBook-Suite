@@ -62,6 +62,20 @@ whatport 31337
 
 ---
 
+### urlencode & urldecode
+
+Custom ZSH functions built in Python to safely encode and decode XSS payloads directly from the terminal. Unlike basic web encoders, these use strict encoding (`safe=''`) to ensure that all characters, including forward slashes (`/`), are converted properly to bypass WAFs.
+
+```bash
+$ urlencode '<script>alert(document.domain)</script>'
+%3Cscript%3Ealert%28document.domain%29%3C%2Fscript%3E
+
+$ urldecode '%3Cscript%3Ealert%28document.domain%29%3C%2Fscript%3E'
+<script>alert(document.domain)</script>
+```
+
+---
+
 ### emailharvester
 
 The dedicated Kali Linux package for finding domain emails in search engines. Handled automatically by the GitHub tools script (cloned, requirements installed, and symlinked).
