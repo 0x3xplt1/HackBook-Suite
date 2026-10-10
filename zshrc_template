@@ -338,7 +338,7 @@ export PATH=/Applications/Flutter_SDK/flutter/bin:$PATH
 export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"
 export XML_CATALOG_FILES="/usr/local/etc/xml/catalog"
 
-# GUI App Launchers (Kali & Custom Parity)
+# GUI App Launchers
 # Cybersecurity & OSINT
 alias burpsuite='open -a "Burp Suite"'
 alias wireshark='open -a Wireshark'
