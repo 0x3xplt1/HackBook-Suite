@@ -332,12 +332,18 @@ export PIPX_DEFAULT_PYTHON="$HOME/.pyenv/versions/3.10.16/bin/python3"
 # Antigravity & SDKs
 export PATH="$HOME/.local/bin:$PATH"
 agy-resume() {
-    if [ -f agy_resume.txt ]; then
-        eval "$(cat agy_resume.txt)"
-    elif [ -f agy_resume ]; then
-        eval "$(cat agy_resume)"
+    local resume_file=""
+    for f in agy_resume.txt agy_resume agy-resume.txt agy-resume; do
+        if [ -f "$f" ]; then
+            resume_file="$f"
+            break
+        fi
+    done
+
+    if [ -n "$resume_file" ]; then
+        eval "$(cat "$resume_file")"
     else
-        echo "[-] No active session found (agy_resume file missing)."
+        echo "[-] No active session found (resume file missing)."
         echo -n "[?] Would you like to start a new Antigravity session? (y/n): "
         read answer
         if [[ "$answer" =~ ^[Yy]$ ]]; then
