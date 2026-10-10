@@ -338,10 +338,51 @@ export PATH=/Applications/Flutter_SDK/flutter/bin:$PATH
 export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"
 export XML_CATALOG_FILES="/usr/local/etc/xml/catalog"
 
-# GUI App Launchers
+# GUI App Launchers (Kali & Custom Parity)
+# Cybersecurity & OSINT
 alias burpsuite='open -a "Burp Suite"'
 alias wireshark='open -a Wireshark'
 alias firefox='open -a Firefox'
+alias bloodhound='open -a BloodHound'
+alias zaproxy='open -a ZAP'
+alias torbrowser='open -a "Tor Browser"'
+alias veracrypt='open -a VeraCrypt'
+alias protonpass='open -a "Proton Pass"'
+alias protonvpn='open -a ProtonVPN'
+
+# Development & IDEs
+alias code='open -a "Visual Studio Code"'
+alias android-studio='open -a "Android Studio"'
+alias pycharm='open -a PyCharm'
+alias clion='open -a CLion'
+alias intellij='open -a "IntelliJ IDEA"'
+alias webstorm='open -a WebStorm'
+alias phpstorm='open -a PhpStorm'
+alias postman='open -a Postman'
+alias utm='open -a UTM'
+alias qtspim='open -a QtSpim'
+alias docker-gui='open -a Docker'
+
+# Browsers & AI
+alias chromium='open -a Chromium'
+alias opera='open -a Opera'
+alias claude='open -a Claude'
+alias gemini='open -a Gemini'
+alias ollama-gui='open -a Ollama'
+
+# Media, Chat & Productivity
+alias obsidian='open -a Obsidian'
+alias discord='open -a Discord'
+alias whatsapp='open -a WhatsApp'
+alias viber='open -a Viber'
+alias obs='open -a OBS'
+alias vlc='open -a VLC'
+alias teamviewer='open -a TeamViewer'
+
+# Music & Engineering
+alias ableton='open -a "Ableton Live 12 Suite"'
+alias flstudio='open -a "FL Studio 2026"'
+alias matlab='open -a MATLAB_R2026a'
 
 # ==========================================
 # FUNCTIONS
