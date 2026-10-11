@@ -180,6 +180,17 @@ alias impacket-ticketer="ticketer.py"
 alias impacket-wmiexec="wmiexec.py"
 alias impacket-wmiquery="wmiquery.py"
 
+# Shorthand Impacket Aliases (run directly without .py or impacket- prefix)
+alias smbserver="smbserver.py"
+alias secretsdump="secretsdump.py"
+alias psexec="psexec.py"
+alias wmiexec="wmiexec.py"
+alias smbexec="smbexec.py"
+alias ntlmrelayx="ntlmrelayx.py"
+alias mssqlclient="mssqlclient.py"
+alias getnpusers="GetNPUsers.py"
+alias getuserspns="GetUserSPNs.py"
+
 # Turn off the firewall (python server for machine file transferring)
 alias fw-off="sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off"
 alias fw-on="sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on"
@@ -531,7 +542,7 @@ xfreerdp() {
       else
         brew reinstall --cask --quiet xquartz > /dev/null
         open -a XQuartz
-        sleep 1
+        sleep 3
       fi
 
       export DISPLAY=:0
