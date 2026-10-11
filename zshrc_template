@@ -72,6 +72,7 @@ alias sed='gsed'
 alias strings='gstrings'
 alias mysql='mariadb'
 alias speedtest='networkQuality'
+alias updatedb='sudo /usr/libexec/locate.updatedb'
 
 
 # ==========================================

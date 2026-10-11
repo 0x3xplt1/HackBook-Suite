@@ -135,6 +135,7 @@ macOS is BSD-based, so several standard Linux tools are either missing or behave
 | `nc` | Wrapped with `rlwrap`. Adds arrow keys and history to reverse shells |
 | `ftp` / `telnet` | Restored via `inetutils` (Apple removed them in High Sierra) |
 | `mysql` | Aliased to `mariadb` (see below) |
+| `updatedb` | Aliased to `sudo /usr/libexec/locate.updatedb`. Builds/refreshes the `locate` index |
 
 ### mysql → mariadb
 
