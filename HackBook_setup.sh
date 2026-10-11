@@ -264,6 +264,8 @@ PIPX_TOOLS=(
     xortool
     h8mail
     uploadserver
+    hashid
+    name-that-hash
 )
 
 for tool in "${PIPX_TOOLS[@]}"; do
