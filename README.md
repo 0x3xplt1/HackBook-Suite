@@ -124,6 +124,17 @@ xorsearch malware.exe http
 
 ---
 
+### username-anarchy
+
+The classic Ruby tool for generating permutations of usernames from names (First Last -> flast, first.last, etc.) for brute-force and password spraying attacks. Handled automatically by the GitHub tools installer and symlinked to your path.
+
+```bash
+username-anarchy -i names.txt
+username-anarchy "John Doe"
+```
+
+---
+
 ## macOS vs Kali — Command Parity
 
 macOS is BSD-based, so several standard Linux tools are either missing or behave differently. The toolkit installs the GNU versions via Homebrew and maps them so copy-pasted Kali commands just work:

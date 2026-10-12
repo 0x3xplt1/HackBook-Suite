@@ -65,6 +65,7 @@ declare -A REPOS=(
     ["smtp-user-enum"]="https://github.com/pentestmonkey/smtp-user-enum.git"
     ["EmailHarvester"]="https://github.com/maldevel/EmailHarvester.git"
     ["recon-ng"]="https://github.com/lanmaster53/recon-ng.git"
+    ["username-anarchy"]="https://github.com/urbanadventurer/username-anarchy.git"
 )
 
 for folder in "${!REPOS[@]}"; do
@@ -121,6 +122,13 @@ if [ -f "$INSTALL_DIR/recon-ng/recon-ng" ]; then
     ln -sf "$INSTALL_DIR/recon-ng/recon-cli" "$HOME/bin/recon-cli"
     ln -sf "$INSTALL_DIR/recon-ng/recon-web" "$HOME/bin/recon-web"
     cd - > /dev/null
+fi
+
+if [ -f "$INSTALL_DIR/username-anarchy/username-anarchy" ]; then
+    echo "Configuring username-anarchy symlink in ~/bin..."
+    chmod +x "$INSTALL_DIR/username-anarchy/username-anarchy"
+    mkdir -p "$HOME/bin"
+    ln -sf "$INSTALL_DIR/username-anarchy/username-anarchy" "$HOME/bin/username-anarchy"
 fi
 
 
