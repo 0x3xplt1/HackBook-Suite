@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# HackBook Suite — Standalone Windows Binaries Updater
+# Checks and downloads the latest official releases for standalone Windows pentesting binaries.
+
+set -e
+
+# Target directories
+if [ -d "$TOOLS_DIR/windows-resources/binaries" ]; then
+    BIN_DIR="$TOOLS_DIR/windows-resources/binaries"
+    BH_DIR="$TOOLS_DIR/windows-resources/bloodhound"
+elif [ -d "$HOME/Documents/Tools/windows-resources/binaries" ]; then
+    BIN_DIR="$HOME/Documents/Tools/windows-resources/binaries"
+    BH_DIR="$HOME/Documents/Tools/windows-resources/bloodhound"
+else
+    BIN_DIR="$HOME/Tools/windows-resources/binaries"
+    BH_DIR="$HOME/Tools/windows-resources/bloodhound"
+fi
+
+mkdir -p "$BIN_DIR" "$BH_DIR"
+
+echo "============================================================"
+echo "  Updating Standalone Windows Binaries ($BIN_DIR)"
+echo "============================================================"
+
+# 1. LaZagne
+echo "[*] Fetching LaZagne.exe..."
+curl -sL https://github.com/AlessandroZ/LaZagne/releases/latest/download/LaZagne.exe -o "$BIN_DIR/LaZagne.exe"
+
+# 2. winPEAS
+echo "[*] Fetching winPEAS (x64 & any)..."
+curl -sL https://github.com/peass-ng/PEASS-ng/releases/latest/download/winPEASx64.exe -o "$BIN_DIR/winPEASx64.exe"
+curl -sL https://github.com/peass-ng/PEASS-ng/releases/latest/download/winPEASany.exe -o "$BIN_DIR/winPEASany.exe"
+
+# 3. PrintSpoofer
+echo "[*] Fetching PrintSpoofer64.exe..."
+curl -sL https://github.com/itm4n/PrintSpoofer/releases/latest/download/PrintSpoofer64.exe -o "$BIN_DIR/PrintSpoofer64.exe"
+
+# 4. GodPotato
+echo "[*] Fetching GodPotato-NET4.exe..."
+curl -sL https://github.com/BeichenDream/GodPotato/releases/latest/download/GodPotato-NET4.exe -o "$BIN_DIR/GodPotato-NET4.exe"
+
+# 5. RunasCs
+echo "[*] Fetching RunasCs.exe..."
+TMP_RUNAS=$(mktemp -d)
+curl -sL https://github.com/antonioCoco/RunasCs/releases/latest/download/RunasCs.zip -o "$TMP_RUNAS/RunasCs.zip"
+unzip -q -o "$TMP_RUNAS/RunasCs.zip" RunasCs.exe -d "$BIN_DIR" 2>/dev/null || true
+rm -rf "$TMP_RUNAS"
+
+# 6. Chisel (Windows x64)
+echo "[*] Fetching Chisel (Windows x64)..."
+CHISEL_URL=$(curl -s https://api.github.com/repos/jpillora/chisel/releases/latest | grep "browser_download_url.*windows_amd64.zip" | head -n 1 | cut -d '"' -f 4)
+if [ -n "$CHISEL_URL" ]; then
+    TMP_CHISEL=$(mktemp -d)
+    curl -sL "$CHISEL_URL" -o "$TMP_CHISEL/chisel.zip"
+    unzip -q -o "$TMP_CHISEL/chisel.zip" chisel.exe -d "$BIN_DIR" 2>/dev/null || true
+    rm -rf "$TMP_CHISEL"
+fi
+
+# 7. SharpHound (v2.x)
+echo "[*] Fetching SharpHound (exe & ps1)..."
+SH_URL=$(curl -s https://api.github.com/repos/SpecterOps/SharpHound/releases/latest | grep "browser_download_url.*windows_x86.zip" | head -n 1 | cut -d '"' -f 4)
+if [ -n "$SH_URL" ]; then
+    TMP_SH=$(mktemp -d)
+    curl -sL "$SH_URL" -o "$TMP_SH/sharphound.zip"
+    unzip -q -o "$TMP_SH/sharphound.zip" -d "$BH_DIR" 2>/dev/null || true
+    rm -rf "$TMP_SH"
+fi
+
+# 8. SharpDPAPI
+echo "[*] Fetching SharpDPAPI.exe..."
+curl -sL "https://github.com/Flangvik/SharpCollection/raw/master/NetFramework_4.7_Any/SharpDPAPI.exe" -o "$BIN_DIR/SharpDPAPI.exe"
+
+# 9. Seatbelt
+echo "[*] Fetching Seatbelt.exe..."
+curl -sL "https://github.com/Flangvik/SharpCollection/raw/master/NetFramework_4.7_Any/Seatbelt.exe" -o "$BIN_DIR/Seatbelt.exe"
+
+echo "[+] Standalone Windows binaries updated successfully!"

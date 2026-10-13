@@ -74,7 +74,6 @@ alias mysql='mariadb'
 alias speedtest='networkQuality'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
 
-
 # ==========================================
 # HOMEBREW COMMAND-NOT-FOUND HANDLER
 
@@ -477,7 +476,7 @@ sysupdate() {
 
     echo "\n"
 
-    for d in "$TOOLS_DIR"/*/; do
+    for d in "$TOOLS_DIR"/*/ "$TOOLS_DIR"/windows-resources/*/; do
         if [ -d "$d/.git" ]; then
             # Print which folder is being checked so we know if iCloud hangs
             printf "Chk: %-30s\r" "$(basename "$d")"
@@ -512,6 +511,12 @@ sysupdate() {
             fi
         fi
     done
+
+    if command -v update-windows-binaries >/dev/null 2>&1; then
+        echo "\n"
+        update-windows-binaries
+    fi
+
     echo "\nDone."
 }
 

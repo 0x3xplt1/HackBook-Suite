@@ -35,7 +35,7 @@ These tools aren't in Homebrew or need special setup to work correctly on macOS.
 
 ### smtp-user-enum
 
-The original Perl script from pentestmonkey — the same one Kali ships. Flags like `-M`, `-U`, `-t` work exactly as written in HTB writeups.
+The original Perl script from pentestmonkey. Flags like `-M`, `-U`, `-t` work exactly as written in HTB writeups.
 
 ```bash
 cd ~/Documents/Tools
@@ -78,7 +78,7 @@ $ urldecode '%3Cscript%3Ealert%28document.domain%29%3C%2Fscript%3E'
 
 ### emailharvester
 
-The dedicated Kali Linux package for finding domain emails in search engines. Handled automatically by the GitHub tools script (cloned, requirements installed, and symlinked).
+The dedicated package for finding domain emails in search engines. Handled automatically by the GitHub tools script (cloned, requirements installed, and symlinked).
 
 ```bash
 emailharvester -d example.com -e google
@@ -88,7 +88,7 @@ emailharvester -d example.com -e google
 
 ### recon-ng
 
-The famous OSINT web reconnaissance framework (same as Kali). The automated GitHub installer clones it, installs its Python dependencies, and maps the binaries to your path.
+The famous OSINT web reconnaissance framework. The automated GitHub installer clones it, installs its Python dependencies, and maps the binaries to your path.
 
 ```bash
 recon-ng
@@ -108,7 +108,7 @@ Modern `recon-ng` ships empty by default. You must install modules from the mark
 
 ### xorsearch
 
-Didier Stevens' XOR/ROT string scanner — standard in Kali and REMnux for malware analysis. Searches inside binary files for encoded strings like URLs, IPs, or shellcode. Not on Homebrew, so build it from source (takes about 5 seconds):
+Didier Stevens' XOR/ROT string scanner — standard tool for malware analysis. Searches inside binary files for encoded strings like URLs, IPs, or shellcode. Not on Homebrew, so build it from source (takes about 5 seconds):
 
 ```bash
 mkdir -p ~/Documents/Tools/XORSearch && cd ~/Documents/Tools/XORSearch
@@ -135,9 +135,9 @@ username-anarchy "John Doe"
 
 ---
 
-## macOS vs Kali — Command Parity
+## macOS Command Parity & GNU Utilities
 
-macOS is BSD-based, so several standard Linux tools are either missing or behave differently. The toolkit installs the GNU versions via Homebrew and maps them so copy-pasted Kali commands just work:
+macOS is BSD-based, so several standard Linux tools are either missing or behave differently. The toolkit installs the GNU versions via Homebrew and maps them so copy-pasted Linux commands just work:
 
 | Command | What it does |
 |---------|-------------|
@@ -150,13 +150,30 @@ macOS is BSD-based, so several standard Linux tools are either missing or behave
 
 ### mysql → mariadb
 
-Modern Oracle MySQL (v8.4+) dropped `mysql_native_password` and `--ssl=0`. A lot of older HTB targets rely on both. Kali quietly routes `mysql` through MariaDB to stay compatible — this toolkit does the same:
+Modern Oracle MySQL (v8.4+) dropped `mysql_native_password` and `--ssl=0`. A lot of older HTB targets rely on both. To maintain compatibility, this toolkit routes `mysql` through MariaDB:
 
 ```bash
 alias mysql="mariadb"
 ```
 
 Copy-paste `mysql` commands from writeups and they work.
+
+---
+
+### windows-resources (Windows Attack Resources)
+
+Provides an organized directory structure in `$TOOLS_DIR/windows-resources`. Contains authentic Windows binaries, frameworks, and privilege escalation tools (`LaZagne`, `winPEAS`, `mimikatz`, `PowerSploit`, `nishang`, `powercat`, `chisel`, `SharpHound`, `RunasCs`, `PrintSpoofer`, `GodPotato`, `Seatbelt`, `SharpDPAPI`, etc.).
+
+**How to use:**
+Simply copy the required binary directly into your engagement or lab folder:
+```bash
+cp "$TOOLS_DIR/windows-resources/binaries/winPEASx64.exe" .
+python3 -m http.server 80
+```
+
+**Automated updates:**
+* `sysupdate` — automatically updates all cloned windows-resources repositories (`powersploit`, `nishang`, `mimikatz`, `powercat`, etc.) as well as fetching the latest GitHub release binaries.
+* `update-windows-binaries` — standalone script to refresh all precompiled Windows `.exe` tools on demand.
 
 ---
 

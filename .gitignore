@@ -1,0 +1,20 @@
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Compiled Windows Executables & Binaries (Prevent GitHub Malware Flags)
+*.exe
+*.dll
+*.sys
+*.zip
+*.tar.gz
+*.gz
+
+# Local Tools / Resources directories
+windows-resources/
+Windows_Tools/
+vpn_loopback_fix.sh
