@@ -66,6 +66,7 @@ declare -A REPOS=(
     ["EmailHarvester"]="https://github.com/maldevel/EmailHarvester.git"
     ["recon-ng"]="https://github.com/lanmaster53/recon-ng.git"
     ["username-anarchy"]="https://github.com/urbanadventurer/username-anarchy.git"
+    ["PCredz"]="https://github.com/lgandx/PCredz.git"
 )
 
 for folder in "${!REPOS[@]}"; do
@@ -129,6 +130,14 @@ if [ -f "$INSTALL_DIR/username-anarchy/username-anarchy" ]; then
     chmod +x "$INSTALL_DIR/username-anarchy/username-anarchy"
     mkdir -p "$HOME/bin"
     ln -sf "$INSTALL_DIR/username-anarchy/username-anarchy" "$HOME/bin/username-anarchy"
+fi
+
+if [ -f "$INSTALL_DIR/PCredz/Pcredz" ]; then
+    echo "Configuring PCredz..."
+    python3 -m pip install pcapy-ng 2>/dev/null || true
+    chmod +x "$INSTALL_DIR/PCredz/Pcredz"
+    mkdir -p "$HOME/bin"
+    ln -sf "$INSTALL_DIR/PCredz/Pcredz" "$HOME/bin/Pcredz"
 fi
 
 

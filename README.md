@@ -19,7 +19,7 @@ chmod +x HackBook_setup.sh
 
 - Homebrew + GNU core utilities (replaces BSD tools with Linux equivalents)
 - Python version management via `pyenv` (3.10, 3.12, 3.13, 3.14)
-- Security tools via `pipx`: `impacket`, `pypykatz`, `oletools`, `h8mail`, `uploadserver`, `xortool`, `hashid`, `name-that-hash`, `wpscan`, and more
+- Security tools via `pipx`: `impacket`, `pypykatz`, `oletools`, `h8mail`, `uploadserver`, `xortool`, `hashid`, `name-that-hash`, `firefox-decrypt`, `wpscan`, and more
 - Go tools: `ffuf`, `gobuster`, `aquatone`, `subfinder`, etc.
 - `nano` with syntax highlighting (includes MIPS Assembly)
 - Mars4_5 MIPS simulator
@@ -135,6 +135,17 @@ username-anarchy "John Doe"
 
 ---
 
+### PCredz
+
+Extracts credentials (NTLM, Kerberos, HTTP Basic, LDAP, SNMP, etc.) from pcap files or live network traffic. Handled automatically by the GitHub tools installer and symlinked to your path as `Pcredz`.
+
+```bash
+Pcredz -f capture.pcap
+Pcredz -d /path/to/pcaps/
+```
+
+---
+
 ## macOS Command Parity & GNU Utilities
 
 macOS is BSD-based, so several standard Linux tools are either missing or behave differently. The toolkit installs the GNU versions via Homebrew and maps them so copy-pasted Linux commands just work:
@@ -185,9 +196,10 @@ Pre-configured containers for Kali, Parrot OS, and REMnux. Each one gets `NET_AD
 kali-linux-lab       # Kali Linux
 parrot-os-lab        # Parrot OS
 remnux-lab           # REMnux (malware analysis)
+manspider            # MANSPIDER (SMB share spidering and credential searching)
 ```
 
-Containers are temporary by default — removed on exit.
+Containers are temporary by default — removed on exit. For `manspider`, loot and databases are automatically saved to `./manspider` in your current directory.
 
 ### Persist changes
 

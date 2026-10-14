@@ -291,6 +291,11 @@ remnux-lab() {
       remnux/remnux-distro bash "${new_args[@]}"
 }
 
+# MANSPIDER Docker Wrapper
+manspider() {
+    docker run --platform linux/amd64 --rm -it -v "${PWD}:/data" -v "${PWD}/manspider:/root/.manspider" blacklanternsecurity/manspider "$@"
+}
+
 
 
 # ==========================================
