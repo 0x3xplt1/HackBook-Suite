@@ -296,6 +296,75 @@ manspider() {
     docker run --platform linux/amd64 --rm -it -v "${PWD}:/data" -v "${PWD}/manspider:/root/.manspider" blacklanternsecurity/manspider "$@"
 }
 
+# Reverse Shell Generator — local web UI (http://127.0.0.1:8888)
+# Built from: github.com/0dayCTF/reverse-shell-generator
+revshells() {
+    local PORT=8888
+    local IMAGE="local-revshells"
+    local CONTAINER="revshells-ui"
+
+    # Check if image exists
+    if ! docker image inspect "$IMAGE" &>/dev/null; then
+        echo "[!] Docker image '$IMAGE' not found."
+        echo "    Build it first with:"
+        echo "    cd \$TOOLS_DIR/reverse-shell-generator && docker build -t $IMAGE ."
+        return 1
+    fi
+
+    # Check if port is already in use
+    if lsof -i TCP:$PORT -sTCP:LISTEN &>/dev/null; then
+        echo "[!] Port $PORT is already in use. Stop the conflicting process first."
+        return 1
+    fi
+
+    echo "[*] Starting Reverse Shell Generator on http://127.0.0.1:$PORT ..."
+    docker run --rm -d \
+        --name "$CONTAINER" \
+        -p 127.0.0.1:${PORT}:80 \
+        "$IMAGE" > /dev/null
+
+    sleep 1
+
+    if docker ps --filter "name=^${CONTAINER}$" --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
+        echo "[+] Container '$CONTAINER' is running."
+        echo "[+] Open: http://127.0.0.1:$PORT"
+        open "http://127.0.0.1:$PORT"
+    else
+        echo "[-] Container failed to start. Check: docker logs $CONTAINER"
+        return 1
+    fi
+}
+
+revshells-stop() {
+    local PORT=8888
+    local CONTAINER="revshells-ui"
+
+    if docker ps --filter "name=^${CONTAINER}$" --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
+        echo "[*] Stopping '$CONTAINER'..."
+        docker stop "$CONTAINER" > /dev/null
+        sleep 1
+
+        # Verify container is gone
+        if docker ps --filter "name=^${CONTAINER}$" --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
+            echo "[-] Container did not stop cleanly. Try: docker kill $CONTAINER"
+            return 1
+        fi
+
+        # Verify port is free
+        if lsof -i TCP:$PORT -sTCP:LISTEN &>/dev/null; then
+            echo "[!] Warning: Port $PORT is still in use by another process."
+        else
+            echo "[+] Container stopped. Port $PORT is now free."
+        fi
+    else
+        echo "[~] No running container named '$CONTAINER' found."
+        # Still check if port is stuck
+        if lsof -i TCP:$PORT -sTCP:LISTEN &>/dev/null; then
+            echo "[!] But port $PORT is still occupied by another process."
+        fi
+    fi
+}
+
 
 
 # ==========================================

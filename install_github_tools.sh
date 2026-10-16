@@ -67,6 +67,7 @@ declare -A REPOS=(
     ["recon-ng"]="https://github.com/lanmaster53/recon-ng.git"
     ["username-anarchy"]="https://github.com/urbanadventurer/username-anarchy.git"
     ["PCredz"]="https://github.com/lgandx/PCredz.git"
+    ["reverse-shell-generator"]="https://github.com/0dayCTF/reverse-shell-generator.git"
 )
 
 for folder in "${!REPOS[@]}"; do
@@ -138,6 +139,13 @@ if [ -f "$INSTALL_DIR/PCredz/Pcredz" ]; then
     chmod +x "$INSTALL_DIR/PCredz/Pcredz"
     mkdir -p "$HOME/bin"
     ln -sf "$INSTALL_DIR/PCredz/Pcredz" "$HOME/bin/Pcredz"
+fi
+
+if [ -d "$INSTALL_DIR/reverse-shell-generator" ]; then
+    echo "[*] Building local-revshells Docker image (this may take a moment)..."
+    docker build -t local-revshells "$INSTALL_DIR/reverse-shell-generator" && \
+        echo "[+] local-revshells image built successfully." || \
+        echo "[-] Docker build failed. Make sure Docker Desktop is running."
 fi
 
 

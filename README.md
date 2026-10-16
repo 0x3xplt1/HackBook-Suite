@@ -197,9 +197,26 @@ kali-linux-lab       # Kali Linux
 parrot-os-lab        # Parrot OS
 remnux-lab           # REMnux (malware analysis)
 manspider            # MANSPIDER (SMB share spidering and credential searching)
+revshells            # Reverse Shell Generator — local web UI at http://127.0.0.1:8888
 ```
 
 Containers are temporary by default — removed on exit. For `manspider`, loot and databases are automatically saved to `./manspider` in your current directory.
+
+### Reverse Shell Generator
+
+Browser-based reverse shell builder running locally. No internet needed after build. Configs are stored in browser localStorage.
+
+```bash
+# First-time setup (run once via install_github_tools.sh, or manually):
+cd $TOOLS_DIR/reverse-shell-generator && docker build -t local-revshells .
+
+# Start (opens browser automatically at http://127.0.0.1:8888)
+revshells
+
+# Stop + verify port 8888 is free
+revshells-stop
+```
+
 
 ### Persist changes
 
