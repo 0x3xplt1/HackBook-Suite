@@ -20,7 +20,7 @@ chmod +x HackBook_setup.sh
 - Homebrew + GNU core utilities (replaces BSD tools with Linux equivalents)
 - Python version management via `pyenv` (3.10, 3.12, 3.13, 3.14)
 - Security tools via `pipx`: `impacket`, `pypykatz`, `oletools`, `h8mail`, `uploadserver`, `xortool`, `hashid`, `name-that-hash`, `firefox-decrypt`, `wpscan`, and more
-- Go tools: `ffuf`, `gobuster`, `aquatone`, `subfinder`, etc.
+- Go tools: `ffuf`, `gobuster`, `chisel`, `kerbrute`, `subfinder`, `aquatone`, etc.
 - `nano` with syntax highlighting (includes MIPS Assembly)
 - Mars4_5 MIPS simulator
 - ZSH with `ubunly` theme + autosuggestions + fast-syntax-highlighting
@@ -142,6 +142,40 @@ Extracts credentials (NTLM, Kerberos, HTTP Basic, LDAP, SNMP, etc.) from pcap fi
 ```bash
 Pcredz -f capture.pcap
 Pcredz -d /path/to/pcaps/
+```
+
+---
+
+### John the Ripper (Bleeding-Jumbo)
+
+Built directly from upstream `openwall/john` (`bleeding-jumbo`) with full Apple Silicon ARM ASIMD and OpenMP multicore acceleration. 
+
+All 115+ conversion scripts and formats are mapped to your `$PATH` both with and without extensions so any writeup or command works seamlessly:
+
+```bash
+# Core cracker
+john --wordlist=$WORDLISTS/rockyou.txt hash.txt
+
+# Format converters (work identically with or without .py / .pl extension)
+ssh2john id_rsa > hash.txt
+ssh2john.py id_rsa > hash.txt
+
+pdf2john sample.pdf > hash.txt
+pdf2john.pl sample.pdf > hash.txt
+
+zip2john archive.zip > hash.txt
+rar2john archive.rar > hash.txt
+```
+
+---
+
+### KeyTabExtract (Kerberos Keytabs)
+
+Extracts service and NTLM credentials from Kerberos `.keytab` files. Symlinked to your path as `keytabextract`, `keytabextract.py`, and aliased to `keytab2john` for workflow compatibility:
+
+```bash
+keytabextract /etc/krb5.keytab
+keytab2john /etc/krb5.keytab
 ```
 
 ---

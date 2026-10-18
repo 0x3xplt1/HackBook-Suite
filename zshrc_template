@@ -388,7 +388,11 @@ export PATH="/usr/local/mysql/bin:$PATH"
 # Tool-Specific Paths
 if command -v brew >/dev/null 2>&1; then
     BREW_PREFIX="$(brew --prefix)"
-    [ -d "$BREW_PREFIX/opt/john-jumbo/share/john" ] && export PATH="$BREW_PREFIX/opt/john-jumbo/share/john:$PATH"
+fi
+# John the Ripper (openwall bleeding-jumbo)
+if [ -d "$TOOLS_DIR/john/run" ]; then
+    export PATH="$TOOLS_DIR/john/run:$PATH"
+    alias john='$TOOLS_DIR/john/run/john'
 fi
 export PATH="$TOOLS_DIR/hashcat-utils/src:$PATH"
 export PATH="$TOOLS_DIR/odat:$PATH"

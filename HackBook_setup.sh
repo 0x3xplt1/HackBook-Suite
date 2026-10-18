@@ -175,11 +175,11 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 
 # Note: ffuf and gobuster installed via go install (Section 9)
 BREW_TOOLS=(
-    nmap masscan hydra john-jumbo hashcat netcat socat openvpn aircrack-ng
+    nmap masscan hydra hashcat netcat socat openvpn aircrack-ng
     crunch massdns nikto theharvester sqlcmd freerdp inetutils
     amass exiftool exploitdb dnsmap samba swaks sevenzip iproute2mac
     go rust ruby php maven mariadb redis poetry gh ripgrep htop vnstat
-    watch rlwrap gnu-sed proxychains-ng binutils tor nss
+    watch rlwrap gnu-sed proxychains-ng binutils tor nss gcc libpcap
 )
 
 for tool in "${BREW_TOOLS[@]}"; do
@@ -330,6 +330,7 @@ go install github.com/OJ/gobuster/v3@latest                                     
 go install github.com/ropnop/kerbrute@latest                                             || echo "[-] Failed: kerbrute"
 go install github.com/d3mondev/puredns/v2@latest                                         || echo "[-] Failed: puredns"
 go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest                 || echo "[-] Failed: subfinder"
+go install github.com/jpillora/chisel@latest                                             || echo "[-] Failed: chisel"
 
 # ============================================================
 #  SECTION 10 — GUI APPS (Casks)

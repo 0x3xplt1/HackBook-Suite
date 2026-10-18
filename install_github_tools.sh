@@ -68,6 +68,7 @@ declare -A REPOS=(
     ["username-anarchy"]="https://github.com/urbanadventurer/username-anarchy.git"
     ["PCredz"]="https://github.com/lgandx/PCredz.git"
     ["reverse-shell-generator"]="https://github.com/0dayCTF/reverse-shell-generator.git"
+    ["KeyTabExtract"]="https://github.com/sosdave/KeyTabExtract.git"
 )
 
 for folder in "${!REPOS[@]}"; do
@@ -141,11 +142,116 @@ if [ -f "$INSTALL_DIR/PCredz/Pcredz" ]; then
     ln -sf "$INSTALL_DIR/PCredz/Pcredz" "$HOME/bin/Pcredz"
 fi
 
+if [ -f "$INSTALL_DIR/KeyTabExtract/keytabextract.py" ]; then
+    echo "Configuring KeyTabExtract symlinks in ~/bin..."
+    chmod +x "$INSTALL_DIR/KeyTabExtract/keytabextract.py"
+    mkdir -p "$HOME/bin"
+    ln -sf "$INSTALL_DIR/KeyTabExtract/keytabextract.py" "$HOME/bin/keytabextract"
+    ln -sf "$INSTALL_DIR/KeyTabExtract/keytabextract.py" "$HOME/bin/keytabextract.py"
+    ln -sf "$INSTALL_DIR/KeyTabExtract/keytabextract.py" "$HOME/bin/keytab2john"
+    ln -sf "$INSTALL_DIR/KeyTabExtract/keytabextract.py" "$HOME/bin/keytab2john.py"
+fi
+
 if [ -d "$INSTALL_DIR/reverse-shell-generator" ]; then
     echo "[*] Building local-revshells Docker image (this may take a moment)..."
     docker build -t local-revshells "$INSTALL_DIR/reverse-shell-generator" && \
         echo "[+] local-revshells image built successfully." || \
         echo "[-] Docker build failed. Make sure Docker Desktop is running."
+fi
+
+# ========================================
+# John the Ripper (openwall bleeding-jumbo)
+# Handles both fresh install and updates.
+# ========================================
+echo ""
+echo "[*] Setting up John the Ripper (bleeding-jumbo)..."
+
+JOHN_DIR="$INSTALL_DIR/john"
+JOHN_BRANCH="bleeding-jumbo"
+
+_setup_john_symlinks() {
+    local dir="$1"
+    echo "[*] Ensuring extensionless symlinks and john launcher in $dir/run..."
+    mkdir -p "$HOME/bin"
+
+    # 1. Launcher in ~/bin to invoke john with full path (resolves john.conf)
+    cat << 'EOF' > "$HOME/bin/john"
+#!/bin/bash
+TOOLS="${TOOLS_DIR:-$HOME/Documents/Tools}"
+if [ ! -d "$TOOLS/john/run" ] && [ -d "$HOME/Tools/john/run" ]; then
+    TOOLS="$HOME/Tools"
+fi
+exec "$TOOLS/john/run/john" "$@"
+EOF
+    chmod +x "$HOME/bin/john"
+
+    # 2. Extensionless symlinks for *2john.py and *2john.pl (ssh2john, pdf2john, etc.)
+    for script in "$dir/run/"*2john.py "$dir/run/"*2john.pl; do
+        [ -f "$script" ] || continue
+        local base_name
+        base_name=$(basename "$script")
+        local name_without_ext="${base_name%.*}"
+        if [ ! -e "$dir/run/$name_without_ext" ]; then
+            ln -sf "$base_name" "$dir/run/$name_without_ext"
+        fi
+    done
+}
+
+_build_john() {
+    local dir="$1"
+    echo "[*] Building john from source (this may take a few minutes)..."
+
+    # Auto-detect latest Homebrew gcc (e.g. gcc-16, gcc-15, ...)
+    local GCC_BIN
+    GCC_BIN=$(ls /opt/homebrew/bin/gcc-[0-9]* 2>/dev/null \
+        | grep -v "ar\|nm\|ranlib" | sort -V | tail -1)
+
+    if [ -z "$GCC_BIN" ]; then
+        echo "[-] No Homebrew gcc found. Install with: brew install gcc"
+        echo "    Falling back to system cc (performance will be suboptimal)."
+        GCC_BIN="cc"
+    else
+        echo "[~] Using compiler: $GCC_BIN"
+    fi
+
+    local CPU_COUNT
+    CPU_COUNT=$(sysctl -n hw.ncpu 2>/dev/null || echo 4)
+
+    cd "$dir/src" || return 1
+
+    ./configure \
+        CC="$GCC_BIN" \
+        LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/libpcap/lib" \
+        CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/libpcap/include" \
+        AR="/usr/bin/ar" \
+        RANLIB="/usr/bin/ranlib" 2>&1 | tail -3
+
+    make -s clean && make -sj"$CPU_COUNT" && \
+        echo "[+] John built successfully → $dir/run/john" || \
+        echo "[-] Build failed. Check output above."
+
+    cd - > /dev/null
+    _setup_john_symlinks "$dir"
+}
+
+if [ ! -d "$JOHN_DIR" ]; then
+    echo "[*] Cloning openwall/john (bleeding-jumbo)..."
+    git clone --branch "$JOHN_BRANCH" https://github.com/openwall/john.git "$JOHN_DIR"
+    brew install libpcap 2>/dev/null | grep -v "already installed" || true
+    _build_john "$JOHN_DIR"
+elif [ -d "$JOHN_DIR/.git" ]; then
+    echo "[~] john already cloned — checking for updates..."
+    PULL_OUT=$(git -C "$JOHN_DIR" pull 2>&1)
+    echo "$PULL_OUT"
+    if echo "$PULL_OUT" | grep -q "Already up to date"; then
+        echo "[~] No changes — ensuring symlinks are up to date."
+        _setup_john_symlinks "$JOHN_DIR"
+    else
+        echo "[*] Changes detected — rebuilding john..."
+        _build_john "$JOHN_DIR"
+    fi
+else
+    echo "[~] $JOHN_DIR exists but is not a git repo — skipping."
 fi
 
 
