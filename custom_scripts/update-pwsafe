@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# HackBook Suite — Password Safe Updater
+# Fetches the latest official universal DMG release for Password Safe and updates /Applications/pwsafe.app
+
+set -e
+
+echo "============================================================"
+echo "  Checking for Password Safe (pwsafe) updates"
+echo "============================================================"
+
+PWSAFE_URL=$(curl -s https://api.github.com/repos/pwsafe/pwsafe/releases/latest | grep "browser_download_url.*universal.dmg" | head -n 1 | cut -d '"' -f 4)
+
+if [ -z "$PWSAFE_URL" ]; then
+    echo "[-] Failed to fetch latest Password Safe release URL from GitHub."
+    exit 1
+fi
+
+LATEST_TAG=$(basename "$PWSAFE_URL" | sed -E 's/.*-([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
+CURRENT_VER=$(defaults read /Applications/pwsafe.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo "none")
+
+echo "[*] Installed version : $CURRENT_VER"
+echo "[*] Latest version    : $LATEST_TAG"
+
+if [ "$CURRENT_VER" = "$LATEST_TAG" ]; then
+    echo "[+] Password Safe is already up-to-date ($CURRENT_VER)."
+    exit 0
+fi
+
+echo "[*] Downloading and installing Password Safe $LATEST_TAG..."
+TMP_DMG=$(mktemp /tmp/pwsafe_XXXXXX.dmg)
+MOUNT_DIR=$(mktemp -d /tmp/pwsafe_mount_XXXXXX)
+
+curl -sL "$PWSAFE_URL" -o "$TMP_DMG"
+echo "Y" | hdiutil attach "$TMP_DMG" -mountpoint "$MOUNT_DIR" -nobrowse -quiet
+cp -R "$MOUNT_DIR/"*.app /Applications/
+hdiutil detach "$MOUNT_DIR" -quiet
+rm -rf "$TMP_DMG" "$MOUNT_DIR"
+
+UPDATED_VER=$(defaults read /Applications/pwsafe.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo "unknown")
+echo "[+] Password Safe successfully updated to $UPDATED_VER in /Applications/pwsafe.app"

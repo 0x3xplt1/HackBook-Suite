@@ -357,6 +357,12 @@ for cask in "${CASKS[@]}"; do
     brew install --cask "$cask" || echo "[-] Failed: $cask"
 done
 
+echo ""
+echo "[*] Installing/Updating Password Safe (pwsafe)..."
+if [ -f "$SCRIPT_DIR/custom_scripts/update-pwsafe" ]; then
+    bash "$SCRIPT_DIR/custom_scripts/update-pwsafe" || echo "[-] Failed: pwsafe"
+fi
+
 unset HOMEBREW_NO_AUTO_UPDATE
 
 # ============================================================

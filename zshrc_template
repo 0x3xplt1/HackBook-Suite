@@ -299,7 +299,7 @@ manspider() {
 # evil-winrm (Docker wrapper with evil-winrm-py fallback)
 evil-winrm() {
     if docker info >/dev/null 2>&1; then
-        docker run --platform linux/amd64 --rm -it -v "${PWD}:/data" -w /data oscarakaelvis/evil-winrm "$@"
+        docker run --platform linux/amd64 --rm -it -v "${HOME}:${HOME}" -v "${PWD}:/data" -w /data oscarakaelvis/evil-winrm "$@"
     elif command -v ewp >/dev/null 2>&1; then
         echo "[~] Docker daemon not running — falling back to evil-winrm-py (ewp)..."
         ewp "$@"
@@ -609,6 +609,11 @@ sysupdate() {
     if command -v update-windows-binaries >/dev/null 2>&1; then
         echo "\n"
         update-windows-binaries
+    fi
+
+    if command -v update-pwsafe >/dev/null 2>&1; then
+        echo "\n"
+        update-pwsafe
     fi
 
     echo "\nDone."

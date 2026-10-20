@@ -215,6 +215,21 @@ cp "$TOOLS_DIR/mimipenguin/mimipenguin.sh" .
 
 ---
 
+### Password Safe (pwsafe)
+
+Official macOS GUI application for inspecting `.psafe3` password vaults. Paired with `pwsafe2john` for cracking:
+
+```bash
+# Update / install latest Password Safe universal DMG directly from GitHub
+update-pwsafe
+
+# Extract hash from .psafe3 database and crack
+pwsafe2john database.psafe3 > hash.txt
+john --wordlist=$WORDLISTS/rockyou.txt hash.txt
+```
+
+---
+
 ## macOS Command Parity & GNU Utilities
 
 macOS is BSD-based, so several standard Linux tools are either missing or behave differently. The toolkit installs the GNU versions via Homebrew and maps them so copy-pasted Linux commands just work:
