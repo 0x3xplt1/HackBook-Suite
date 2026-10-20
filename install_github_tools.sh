@@ -69,6 +69,9 @@ declare -A REPOS=(
     ["PCredz"]="https://github.com/lgandx/PCredz.git"
     ["reverse-shell-generator"]="https://github.com/0dayCTF/reverse-shell-generator.git"
     ["KeyTabExtract"]="https://github.com/sosdave/KeyTabExtract.git"
+    ["PKINITtools"]="https://github.com/dirkjanm/PKINITtools.git"
+    ["krbrelayx"]="https://github.com/dirkjanm/krbrelayx.git"
+    ["mimipenguin"]="https://github.com/huntergregal/mimipenguin.git"
 )
 
 for folder in "${!REPOS[@]}"; do
@@ -150,6 +153,38 @@ if [ -f "$INSTALL_DIR/KeyTabExtract/keytabextract.py" ]; then
     ln -sf "$INSTALL_DIR/KeyTabExtract/keytabextract.py" "$HOME/bin/keytabextract.py"
     ln -sf "$INSTALL_DIR/KeyTabExtract/keytabextract.py" "$HOME/bin/keytab2john"
     ln -sf "$INSTALL_DIR/KeyTabExtract/keytabextract.py" "$HOME/bin/keytab2john.py"
+fi
+
+if [ -d "$INSTALL_DIR/PKINITtools" ]; then
+    echo "Configuring PKINITtools..."
+    python3 -m pip install minikerberos 2>/dev/null || true
+    chmod +x "$INSTALL_DIR/PKINITtools/gettgtpkinit.py" "$INSTALL_DIR/PKINITtools/getnthash.py" 2>/dev/null || true
+    mkdir -p "$HOME/bin"
+    ln -sf "$INSTALL_DIR/PKINITtools/gettgtpkinit.py" "$HOME/bin/gettgtpkinit.py"
+    ln -sf "$INSTALL_DIR/PKINITtools/gettgtpkinit.py" "$HOME/bin/gettgtpkinit"
+    ln -sf "$INSTALL_DIR/PKINITtools/getnthash.py" "$HOME/bin/getnthash.py"
+    ln -sf "$INSTALL_DIR/PKINITtools/getnthash.py" "$HOME/bin/getnthash"
+fi
+
+if [ -d "$INSTALL_DIR/krbrelayx" ]; then
+    echo "Configuring krbrelayx..."
+    chmod +x "$INSTALL_DIR/krbrelayx/"*.py 2>/dev/null || true
+    mkdir -p "$HOME/bin"
+    for tool in printerbug krbrelayx addspn dnstool; do
+        if [ -f "$INSTALL_DIR/krbrelayx/${tool}.py" ]; then
+            ln -sf "$INSTALL_DIR/krbrelayx/${tool}.py" "$HOME/bin/${tool}.py"
+            ln -sf "$INSTALL_DIR/krbrelayx/${tool}.py" "$HOME/bin/${tool}"
+        fi
+    done
+fi
+
+if [ -d "$INSTALL_DIR/mimipenguin" ]; then
+    echo "Configuring mimipenguin..."
+    chmod +x "$INSTALL_DIR/mimipenguin/mimipenguin.sh" "$INSTALL_DIR/mimipenguin/mimipenguin.py" 2>/dev/null || true
+    mkdir -p "$HOME/bin"
+    ln -sf "$INSTALL_DIR/mimipenguin/mimipenguin.sh" "$HOME/bin/mimipenguin.sh"
+    ln -sf "$INSTALL_DIR/mimipenguin/mimipenguin.sh" "$HOME/bin/mimipenguin"
+    ln -sf "$INSTALL_DIR/mimipenguin/mimipenguin.py" "$HOME/bin/mimipenguin.py"
 fi
 
 if [ -d "$INSTALL_DIR/reverse-shell-generator" ]; then

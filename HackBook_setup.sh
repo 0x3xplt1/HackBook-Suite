@@ -179,7 +179,7 @@ BREW_TOOLS=(
     crunch massdns nikto theharvester sqlcmd freerdp inetutils
     amass exiftool exploitdb dnsmap samba swaks sevenzip iproute2mac
     go rust ruby php maven mariadb redis poetry gh ripgrep htop vnstat
-    watch rlwrap gnu-sed proxychains-ng binutils tor nss gcc libpcap
+    watch rlwrap gnu-sed proxychains-ng binutils tor nss gcc libpcap sshuttle
 )
 
 for tool in "${BREW_TOOLS[@]}"; do
@@ -293,6 +293,8 @@ rm -f ~/bin/crowbar ~/bin/Sublist3r ~/bin/sublist3r 2>/dev/null || true
 pipx install --force git+https://github.com/galkan/crowbar.git         || echo "[-] Failed: crowbar"
 pipx install --force git+https://github.com/aboul3la/Sublist3r.git     || echo "[-] Failed: Sublist3r"
 pipx install --force git+https://github.com/unode/firefox_decrypt.git  || echo "[-] Failed: firefox_decrypt"
+pipx install git+https://github.com/ShutdownRepo/pywhisker.git             || echo "[-] Failed: pywhisker"
+pipx install git+https://github.com/adityatelange/evil-winrm-py.git        || echo "[-] Failed: evil-winrm-py"
 
 echo "[+] Installing NoSQLMap..."
 mkdir -p ~/.local/src && cd ~/.local/src
@@ -311,7 +313,8 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  [8] RUBY GEMS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-sudo gem install evil-winrm cewl wpscan || gem install --user-install evil-winrm cewl wpscan || echo "[-] Failed: Ruby gems"
+sudo gem install cewl wpscan || gem install --user-install cewl wpscan || echo "[-] Failed: Ruby gems"
+docker pull oscarakaelvis/evil-winrm:latest 2>/dev/null || true
 
 # ============================================================
 #  SECTION 9 — GO TOOLS (go install)

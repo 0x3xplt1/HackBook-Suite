@@ -296,6 +296,22 @@ manspider() {
     docker run --platform linux/amd64 --rm -it -v "${PWD}:/data" -v "${PWD}/manspider:/root/.manspider" blacklanternsecurity/manspider "$@"
 }
 
+# evil-winrm (Docker wrapper with evil-winrm-py fallback)
+evil-winrm() {
+    if docker info >/dev/null 2>&1; then
+        docker run --platform linux/amd64 --rm -it -v "${PWD}:/data" -w /data oscarakaelvis/evil-winrm "$@"
+    elif command -v ewp >/dev/null 2>&1; then
+        echo "[~] Docker daemon not running — falling back to evil-winrm-py (ewp)..."
+        ewp "$@"
+    elif command -v evil-winrm-py >/dev/null 2>&1; then
+        echo "[~] Docker daemon not running — falling back to evil-winrm-py..."
+        evil-winrm-py "$@"
+    else
+        echo "[-] Neither Docker nor evil-winrm-py is available."
+        return 1
+    fi
+}
+
 # Reverse Shell Generator — local web UI (http://127.0.0.1:8888)
 # Built from: github.com/0dayCTF/reverse-shell-generator
 revshells() {

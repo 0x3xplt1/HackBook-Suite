@@ -76,3 +76,7 @@ echo "[*] Fetching Seatbelt.exe..."
 curl -sL "https://github.com/Flangvik/SharpCollection/raw/master/NetFramework_4.7_Any/Seatbelt.exe" -o "$BIN_DIR/Seatbelt.exe"
 
 echo "[+] Standalone Windows binaries updated successfully!"
+
+# 10. Rubeus
+echo "[*] Fetching Rubeus.exe..."
+curl -sL "https://github.com/Flangvik/SharpCollection/raw/master/NetFramework_4.7_Any/Rubeus.exe" -o "$BIN_DIR/Rubeus.exe"
