@@ -37,5 +37,8 @@ cp -R "$MOUNT_DIR/"*.app /Applications/
 hdiutil detach "$MOUNT_DIR" -quiet
 rm -rf "$TMP_DMG" "$MOUNT_DIR"
 
+# Remove Gatekeeper quarantine so macOS opens the app without security blocks
+xattr -dr com.apple.quarantine /Applications/pwsafe.app 2>/dev/null || true
+
 UPDATED_VER=$(defaults read /Applications/pwsafe.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo "unknown")
 echo "[+] Password Safe successfully updated to $UPDATED_VER in /Applications/pwsafe.app"
